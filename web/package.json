@@ -1,0 +1,6 @@
+{
+  "name": "@ironbark/web",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Vue 3 dashboard — implemented in Checkpoint 7"
+}

@@ -18,7 +18,7 @@ The five source files are usable but messy. The highest-risk issues for complian
 5. **Mixed incident severity formats** — numeric (1–3), `Low`, and `Medium` cannot be aggregated without normalisation.
 6. **Two serious injuries recorded as severity `1`** — AI + rules should flag for human review, not auto-upgrade.
 
-No source rows should be silently discarded. Every fix, flag, or reject decision must be logged with source filename, source row, original value, cleaned value, action, and explanation.
+No source rows should be silently discarded. Every fixed, flagged, or rejected decision must be logged with source filename, source row, original value, cleaned value, action, and explanation.
 
 ---
 
@@ -309,7 +309,7 @@ Nine description texts appear more than once. These are **not** automatically da
 | Hydraulic hose failure EX-214… | 2 | INC-2026-020, -023 |
 | Light vehicle reversed into bund… | 2 | INC-2026-024, -028 |
 
-Each occurrence has a distinct `incident_id` and date. **Flag** for human review; do not reject.
+Each occurrence has a distinct `incident_id` and date. **Flagged** for human review; do not reject.
 
 ### Psychosocial hazards (OTH type_code)
 
@@ -419,29 +419,29 @@ Ironline Fuel Distributors appears in suppliers ($8.94M + $1.21M). No direct joi
 
 ---
 
-## Fix / Flag / Reject decision table
+## Fixed / Flagged / Rejected decision table
 
 | # | Dataset | Issue | Action | Rationale |
 |---|---------|-------|--------|-----------|
-| 1 | Fuel | Header whitespace | **Fix** | Trim on parse; log original header names |
-| 2 | Fuel | Date format mix (ISO, DD/MM/YYYY, Mon-YY) | **Fix** + **Flag** | Full dates → `delivery_date`; Mon-YY → `delivery_date = null`, `reporting_month`, `date_precision = month` |
-| 3 | Fuel | Unit variants (L, litres, Litres, kL) | **Fix** | Normalise to litres; kL × 1000 |
-| 4 | Fuel | Cost format ($, commas) | **Fix** | Strip symbols; store raw + parsed |
-| 5 | Fuel | Exact duplicate rows (7 copies) | **Reject** | `action = rejected`, `issue_code = EXACT_DUPLICATE`, `include_in_emissions = false` for second copy; preserve source evidence |
-| 6 | Fuel | Negative qty/cost (INV-41777) | **Flag** | Negative quantity and cost remain unchanged as a possible credit/reversal; currency-string parsing is a separate deterministic formatting fix (row 4) |
-| 7 | Fuel | Large deliveries (>100k L) | **Flag** | Unusual but plausible (Mar 2026 outage); do not reject |
-| 8 | Fuel | November 2025 gap | **Flag** | No fuel deliveries in Nov 2025 — no imputation |
-| 9 | Electricity | MTR-06 absent | **Flag** | Document gap; do not invent meter |
-| 10 | Electricity | MTR-07 scale shift (Oct 2025+) | **Flag** | Include in primary Scope 2 totals; flag ~1000× shift; Scope 2 may be understated |
-| 11 | Electricity | March 2026 site-wide drop | **Flag** | Expected given substation event; link to INC-2026-131 |
-| 12 | Incidents | Duplicate incident_id (INC-2025-011) | **Flag** | `issue_code = DUPLICATE_SOURCE_IDENTIFIER`; preserve both incidents under separate internal UUIDs |
-| 13 | Incidents | Mixed severity formats | **Fix** + store raw | Normalise to rank; never overwrite raw |
-| 14 | Incidents | Severity/description mismatch | **Flag** (AI-assisted) | Recommend review; do not auto-change severity |
-| 15 | Incidents | Psychosocial under OTH | **Flag** (AI-assisted) | Re-classify with evidence excerpt |
-| 16 | Incidents | Repeated description patterns | **Flag** | May indicate recurring hazards or templated reporting; review, do not reject |
-| 17 | Suppliers | Missing ABN | **Flag** | Ingest row; mark incomplete |
-| 18 | Suppliers | Invalid ABN length (TerraForm) | **Flag** | Ingest row; mark invalid |
-| 19 | Suppliers | Duplicate entities (Blackwood, Ironline) | **Flag** | Suggest merge candidates; do not auto-merge |
+| 1 | Fuel | Header whitespace | **Fixed** | Trim on parse; log original header names |
+| 2 | Fuel | Date format mix (ISO, DD/MM/YYYY, Mon-YY) | **Fixed** + **Flagged** | Full dates → `delivery_date`; Mon-YY → `delivery_date = null`, `reporting_month`, `date_precision = month` |
+| 3 | Fuel | Unit variants (L, litres, Litres, kL) | **Fixed** | Normalise to litres; kL × 1000 |
+| 4 | Fuel | Cost format ($, commas) | **Fixed** | Strip symbols; store raw + parsed |
+| 5 | Fuel | Exact duplicate rows (7 copies) | **Rejected** | `action = rejected`, `issue_code = EXACT_DUPLICATE`, `include_in_emissions = false` for second copy; preserve source evidence |
+| 6 | Fuel | Negative qty/cost (INV-41777) | **Flagged** | Negative quantity and cost remain unchanged as a possible credit/reversal; currency-string parsing is a separate deterministic **Fixed** action (item 4) |
+| 7 | Fuel | Large deliveries (>100k L) | **Flagged** | Unusual but plausible (Mar 2026 outage); do not reject |
+| 8 | Fuel | November 2025 gap | **Flagged** | No fuel deliveries in Nov 2025 — no imputation |
+| 9 | Electricity | MTR-06 absent | **Flagged** | Document gap; do not invent meter |
+| 10 | Electricity | MTR-07 scale shift (Oct 2025+) | **Flagged** | Include in primary Scope 2 totals; flag ~1000× shift; Scope 2 may be understated |
+| 11 | Electricity | March 2026 site-wide drop | **Flagged** | Expected given substation event; link to INC-2026-131 |
+| 12 | Incidents | Duplicate incident_id (INC-2025-011) | **Flagged** | `issue_code = DUPLICATE_SOURCE_IDENTIFIER`; preserve both incidents under separate internal UUIDs |
+| 13 | Incidents | Mixed severity formats | **Fixed** + store raw | Normalise to rank; never overwrite raw |
+| 14 | Incidents | Severity/description mismatch | **Flagged** (AI-assisted) | Recommend review; do not auto-change severity |
+| 15 | Incidents | Psychosocial under OTH | **Flagged** (AI-assisted) | Re-classify with evidence excerpt |
+| 16 | Incidents | Repeated description patterns | **Flagged** | May indicate recurring hazards or templated reporting; review, do not reject |
+| 17 | Suppliers | Missing ABN | **Flagged** | Ingest row; mark incomplete |
+| 18 | Suppliers | Invalid ABN length (TerraForm) | **Flagged** | Ingest row; mark invalid |
+| 19 | Suppliers | Duplicate entities (Blackwood, Ironline) | **Flagged** | Suggest merge candidates; do not auto-merge |
 | 20 | Emission factors | — | **Use as-is** | Authoritative reference |
 
 ---

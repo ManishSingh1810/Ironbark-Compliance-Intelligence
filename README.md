@@ -9,7 +9,7 @@ Transform 18 months of messy operational data from a fictional Queensland mining
 | Checkpoint | Status |
 |------------|--------|
 | 1 — Data audit | **Complete** |
-| 2 — Project init & schema | Not started |
+| 2 — Project init & schema | Drafted — **migrate not yet verified** against PostgreSQL |
 | 3 — Ingestion pipeline | Not started |
 | 4 — Migrations & verify load | Not started |
 | 5 — API endpoints | Not started |
@@ -50,6 +50,23 @@ See [`docs/DATA_AUDIT.md`](docs/DATA_AUDIT.md) for the full evidence-based audit
 ## Documentation
 
 - [`ASSIGNMENT.md`](ASSIGNMENT.md) — original brief from ESGAgent.ai
-- [`docs/DATA_AUDIT.md`](docs/DATA_AUDIT.md) — detailed data audit with fix/flag/reject decisions
+- [`docs/DATA_AUDIT.md`](docs/DATA_AUDIT.md) — detailed data audit with fixed/flagged/rejected decisions
+- [`docs/SCHEMA.md`](docs/SCHEMA.md) — PostgreSQL schema design notes
 
-Setup and run instructions will be added in Checkpoint 2.
+## Local setup (Checkpoint 2)
+
+```bash
+# Install dependencies
+npm install
+
+# Copy environment template and set DATABASE_URL
+cp .env.example .env
+
+# Type-check the API package
+npm run typecheck
+
+# Apply migrations (requires running PostgreSQL — schema is not validated until this succeeds)
+npm run migrate
+```
+
+Setup and run instructions for ingestion, API, and frontend will expand in later checkpoints.

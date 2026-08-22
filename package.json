@@ -1,0 +1,15 @@
+{
+  "name": "ironbark-compliance-intelligence",
+  "private": true,
+  "workspaces": [
+    "api",
+    "web"
+  ],
+  "scripts": {
+    "typecheck": "npm run typecheck -w api",
+    "migrate": "npm run migrate -w api"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
