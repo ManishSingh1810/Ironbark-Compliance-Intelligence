@@ -48,6 +48,23 @@ export const ISSUE_CODES = {
   INVALID_ABN: "INVALID_ABN",
   MISSING_ABN: "MISSING_ABN",
   DUPLICATE_SUPPLIER_ENTITY: "DUPLICATE_SUPPLIER_ENTITY",
+  FUEL_MONTH_GAP: "FUEL_MONTH_GAP",
+  SITE_ELECTRICITY_DROP: "SITE_ELECTRICITY_DROP",
 } as const;
+
+export const SOURCE_FILES = [
+  "fuel_deliveries.csv",
+  "electricity_meter_readings.csv",
+  "incident_register.csv",
+  "suppliers.csv",
+  "emission_factors.csv",
+] as const;
+
+export const LARGE_DELIVERY_LITRES = 100_000;
+export const MISSING_METER_ID = "MTR-06";
+export const MTR07_SCALE_SHIFT_FROM = "2025-10";
+export const FUEL_GAP_MONTH = "2025-11";
+export const SITE_DROP_COMPARE_FROM = "2026-02";
+export const SITE_DROP_COMPARE_TO = "2026-03";
 
 export type IssueCode = (typeof ISSUE_CODES)[keyof typeof ISSUE_CODES];
