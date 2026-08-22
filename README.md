@@ -53,4 +53,3 @@ See [`docs/DATA_AUDIT.md`](docs/DATA_AUDIT.md) for the full evidence-based audit
 - [`docs/DATA_AUDIT.md`](docs/DATA_AUDIT.md) — detailed data audit with fix/flag/reject decisions
 
 Setup and run instructions will be added in Checkpoint 2.
-# Ironbark-Compliance-Intelligence

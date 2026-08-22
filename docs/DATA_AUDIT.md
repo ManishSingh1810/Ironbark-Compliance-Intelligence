@@ -1,8 +1,8 @@
 # Data Audit — Ironbark Ridge Resources
 
-**Audit date:** 22 August 2026  
-**Method:** Automated Python inspection + manual review of all five CSV files  
-**Data location:** `data/`  
+**Audit date:** 22 August 2026
+**Method:** Automated Python inspection + manual review of all five CSV files
+**Data location:** `data/`
 **Coverage period claimed:** January 2025 – June 2026 (18 months)
 
 ---
