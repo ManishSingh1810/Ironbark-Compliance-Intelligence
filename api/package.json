@@ -7,6 +7,7 @@
     "typecheck": "tsc --noEmit",
     "migrate": "tsx src/db/migrate.ts",
     "ingest": "tsx src/ingestion/cli.ts",
+    "verify:ingestion": "tsx src/ingestion/verify-ingestion.ts",
     "test": "vitest run",
     "build": "tsc"
   },

@@ -9,9 +9,9 @@ Transform 18 months of messy operational data from a fictional Queensland mining
 | Checkpoint | Status |
 |------------|--------|
 | 1 — Data audit | **Complete** |
-| 2 — Project init & schema | Drafted — **migrate not yet verified** against PostgreSQL |
-| 3 — Ingestion pipeline | Not started |
-| 4 — Migrations & verify load | Not started |
+| 2 — Project init & schema | **Complete** — migration applied to Neon PostgreSQL |
+| 3 — Ingestion pipeline | **Complete** — CSV parsing, normalisation, quality issues, rerun detection |
+| 4 — Migrations & verify load | **Complete** — real Neon ingestion verified |
 | 5 — API endpoints | Not started |
 | 6 — AI classification | Not started |
 | 7 — Vue dashboard | Not started |
@@ -53,20 +53,47 @@ See [`docs/DATA_AUDIT.md`](docs/DATA_AUDIT.md) for the full evidence-based audit
 - [`docs/DATA_AUDIT.md`](docs/DATA_AUDIT.md) — detailed data audit with fixed/flagged/rejected decisions
 - [`docs/SCHEMA.md`](docs/SCHEMA.md) — PostgreSQL schema design notes
 
-## Local setup (Checkpoint 2)
+## Local setup
 
 ```bash
 # Install dependencies
 npm install
 
-# Copy environment template and set DATABASE_URL
+# Copy environment template and set DATABASE_URL (never commit .env)
 cp .env.example .env
 
 # Type-check the API package
 npm run typecheck
+```
 
-# Apply migrations (requires running PostgreSQL — schema is not validated until this succeeds)
+## Database migration
+
+Applies `api/migrations/001_initial_schema.sql` to the database configured in `.env`:
+
+```bash
 npm run migrate
 ```
 
-Setup and run instructions for ingestion, API, and frontend will expand in later checkpoints.
+The migration runner is rerunnable — migration files already recorded in schema_migrations are skipped.
+
+## Ingestion
+
+Loads all five CSV files from `data/` into PostgreSQL with full traceability and data-quality recording:
+
+```bash
+npm run ingest
+```
+
+**Rerun behaviour:** Before parsing, the pipeline SHA-256-hashes each source file. If the hash set exactly matches a previous **completed** run, ingestion is skipped safely and the existing run ID is reported. If any file changed, a new run is created. On parse or insert failure, the load transaction is rolled back and a separate **failed** run is recorded with file hashes (no partial entity rows).
+
+## Verification
+
+Read-only checks against the latest completed ingestion run (row counts, traceability, and key audit decisions):
+
+```bash
+npm run verify:ingestion
+```
+
+Exits with a non-zero code if required counts or invariants fail. Does not modify data or print credentials.
+
+Setup and run instructions for API and frontend will expand in later checkpoints.
