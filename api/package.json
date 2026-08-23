@@ -8,6 +8,8 @@
     "migrate": "tsx src/db/migrate.ts",
     "ingest": "tsx src/ingestion/cli.ts",
     "verify:ingestion": "tsx src/ingestion/verify-ingestion.ts",
+    "verify:ai": "tsx src/ai/verify-ai-classification.ts",
+    "ai:classify": "tsx src/ai/cli.ts",
     "test": "vitest run",
     "build": "tsc",
     "dev": "tsx src/server.ts",
@@ -18,8 +20,10 @@
     "csv-parse": "^6.1.0",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
+    "openai": "^4.104.0",
     "pg": "^8.16.3",
-    "zod": "^4.0.17"
+    "zod": "^4.0.17",
+    "zod3": "npm:zod@3.23.8"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",

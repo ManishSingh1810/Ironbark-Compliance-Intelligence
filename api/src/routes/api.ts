@@ -10,6 +10,7 @@ import {
 import { getDataQualityIssues, getDataQualitySummary } from "../services/data-quality-service.js";
 import { getEmissionsSummary, getMonthlyEmissions } from "../services/emissions-service.js";
 import { getEvidence } from "../services/evidence-service.js";
+import { getAiSummary, getIncidentsReview } from "../services/ai-incidents-service.js";
 import { getIncidents, getIncidentsSummary } from "../services/incidents-service.js";
 
 export const apiRouter = Router();
@@ -32,6 +33,20 @@ apiRouter.get(
   "/incidents/summary",
   asyncHandler(async (_req, res) => {
     res.json(await getIncidentsSummary());
+  }),
+);
+
+apiRouter.get(
+  "/incidents/review",
+  asyncHandler(async (_req, res) => {
+    res.json(await getIncidentsReview());
+  }),
+);
+
+apiRouter.get(
+  "/ai/summary",
+  asyncHandler(async (_req, res) => {
+    res.json(await getAiSummary());
   }),
 );
 

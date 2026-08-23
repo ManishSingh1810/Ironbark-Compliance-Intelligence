@@ -8,3 +8,4 @@ coverage/
 *.log
 venv/
 __pycache__/
+*.zip

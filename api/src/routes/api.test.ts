@@ -34,6 +34,12 @@ vi.mock("../repositories/evidence-repository.js", () => ({
   findEvidenceRecord: vi.fn(),
 }));
 
+vi.mock("../services/ai-incidents-service.js", () => ({
+  getAiSummary: vi.fn(),
+  getIncidentsReview: vi.fn(),
+  getIncidentAiStatusMap: vi.fn(),
+}));
+
 import { createApp } from "../app.js";
 import { AppError } from "../errors.js";
 import * as ingestionRunRepo from "../repositories/ingestion-run-repository.js";
@@ -41,6 +47,7 @@ import * as emissionsRepo from "../repositories/emissions-repository.js";
 import * as incidentsRepo from "../repositories/incidents-repository.js";
 import * as evidenceRepo from "../repositories/evidence-repository.js";
 import * as dataQualityRepo from "../repositories/data-quality-repository.js";
+import * as aiIncidentsService from "../services/ai-incidents-service.js";
 
 const RUN_ID = "11111111-1111-4111-8111-111111111111";
 
@@ -50,6 +57,7 @@ describe("API routes", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(ingestionRunRepo.findLatestCompletedRunId).mockResolvedValue(RUN_ID);
+    vi.mocked(aiIncidentsService.getIncidentAiStatusMap).mockResolvedValue(new Map());
   });
 
   it("GET /health returns 200 without database access", async () => {
@@ -230,5 +238,77 @@ describe("API routes", () => {
     expect(response.status).toBe(200);
     expect(response.body.totalIssues).toBe(10);
     expect(response.body.ingestionRunId).toBe(RUN_ID);
+  });
+
+  it("returns honest empty AI summary when no analyses exist", async () => {
+    vi.mocked(aiIncidentsService.getAiSummary).mockResolvedValue({
+      ingestionRunId: RUN_ID,
+      model: "gpt-test",
+      promptVersion: "incident-classification-v3",
+      configurationStatus: "configured",
+      totalIncidents: 42,
+      analysedIncidentCount: 0,
+      pendingIncidentCount: 42,
+      safetyCategoryCounts: [],
+      psychosocialCounts: { yes: 0, no: 0, uncertain: 0, pending: 42 },
+      severityCounts: {
+        consistent: 0,
+        possiblyInconsistent: 0,
+        uncertain: 0,
+        pending: 42,
+      },
+    });
+
+    const response = await request(app).get("/api/ai/summary");
+    expect(response.status).toBe(200);
+    expect(response.body.analysedIncidentCount).toBe(0);
+    expect(response.body.pendingIncidentCount).toBe(42);
+    expect(response.body.safetyCategoryCounts).toEqual([]);
+  });
+
+  it("returns incidents review with source traceability fields", async () => {
+    vi.mocked(aiIncidentsService.getIncidentsReview).mockResolvedValue({
+      ingestionRunId: RUN_ID,
+      model: "gpt-test",
+      promptVersion: "incident-classification-v3",
+      count: 1,
+      incidents: [
+        {
+          id: RUN_ID,
+          sourceIncidentId: "INC-2025-118",
+          description: "Worker fell from ladder in workshop, fractured forearm.",
+          severityRaw: "1",
+          severityNormalised: 1,
+          severityLabel: "Low",
+          typeCode: "SLP",
+          analysisStatus: "complete",
+          safetyCategory: "slips_trips_and_falls",
+          psychosocialAssessment: "no",
+          severityAssessment: "possibly_inconsistent",
+          evidence: {
+            safetyCategory: "fractured forearm",
+            psychosocial: "Worker fell from ladder",
+            severity: "fractured forearm",
+          },
+          explanations: {
+            safetyCategory: "May indicate a fall injury; recommended for human review.",
+            psychosocial: "No psychosocial hazard described.",
+            severity: "Appears potentially inconsistent with recorded Low severity.",
+          },
+          confidence: { safetyCategory: 0.9, psychosocial: 0.8, severity: 0.87 },
+          model: "gpt-test",
+          promptVersion: "incident-classification-v3",
+          sourceFilename: "incident_register.csv",
+          sourceRow: 12,
+          requiresHumanReview: true,
+        },
+      ],
+    });
+
+    const response = await request(app).get("/api/incidents/review");
+    expect(response.status).toBe(200);
+    expect(response.body.incidents[0].sourceFilename).toBe("incident_register.csv");
+    expect(response.body.incidents[0].sourceRow).toBe(12);
+    expect(JSON.stringify(response.body)).not.toMatch(/password|OPENAI_API_KEY|stack/i);
   });
 });

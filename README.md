@@ -66,9 +66,10 @@ npm run ingest
 
 ```bash
 npm run verify:ingestion
+npm run verify:ai
 ```
 
-Read-only checks against the latest completed run. Exits non-zero on invariant failure. Does not print credentials.
+Read-only checks against the latest completed run. `verify:ingestion` covers ingestion invariants; `verify:ai` covers complete active-prompt AI analyses. Both exit non-zero on failure. Do not print credentials.
 
 ## API
 

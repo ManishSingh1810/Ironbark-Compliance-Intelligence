@@ -6,6 +6,7 @@ import {
   countIncidentsByType,
   listIncidents,
 } from "../repositories/incidents-repository.js";
+import { getIncidentAiStatusMap } from "./ai-incidents-service.js";
 
 function severityFilterToNormalised(severity?: string): number | undefined {
   if (!severity) {
@@ -62,10 +63,13 @@ export async function getIncidentsSummary() {
 
 export async function getIncidents(filters: { severity?: string; type?: string }) {
   const ingestionRunId = await findLatestCompletedRunId();
-  const rows = await listIncidents(ingestionRunId, {
-    severityNormalised: severityFilterToNormalised(filters.severity),
-    typeCode: filters.type,
-  });
+  const [rows, aiStatusByIncident] = await Promise.all([
+    listIncidents(ingestionRunId, {
+      severityNormalised: severityFilterToNormalised(filters.severity),
+      typeCode: filters.type,
+    }),
+    getIncidentAiStatusMap(ingestionRunId),
+  ]);
 
   return {
     ingestionRunId,
@@ -82,6 +86,7 @@ export async function getIncidents(filters: { severity?: string; type?: string }
       description: row.description,
       sourceFilename: row.source_filename,
       sourceRow: row.source_row,
+      aiAnalysisStatus: aiStatusByIncident.get(row.id) ?? "pending",
     })),
   };
 }

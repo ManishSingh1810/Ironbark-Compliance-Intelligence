@@ -10,6 +10,8 @@
     "migrate": "npm run migrate -w api",
     "ingest": "npm run ingest -w api",
     "verify:ingestion": "npm run verify:ingestion -w api",
+    "verify:ai": "npm run verify:ai -w api",
+    "ai:classify": "npm run ai:classify -w api",
     "test": "npm run test -w api",
     "dev": "npm run dev -w api",
     "start": "npm run start -w api",
