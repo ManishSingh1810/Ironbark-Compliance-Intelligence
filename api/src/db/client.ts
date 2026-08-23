@@ -11,6 +11,12 @@ const { Pool } = pg;
 
 let pool: pg.Pool | undefined;
 
+function attachPoolErrorListener(poolInstance: pg.Pool): void {
+  poolInstance.on("error", (error: Error) => {
+    console.error("Unexpected idle PostgreSQL client error:", error.message);
+  });
+}
+
 export function getPool(): pg.Pool {
   if (!pool) {
     const connectionString = process.env.DATABASE_URL;
@@ -22,6 +28,7 @@ export function getPool(): pg.Pool {
       connectionString,
       ssl: process.env.PGSSLMODE === "disable" ? false : { rejectUnauthorized: false },
     });
+    attachPoolErrorListener(pool);
   }
 
   return pool;

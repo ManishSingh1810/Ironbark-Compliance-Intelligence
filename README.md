@@ -15,7 +15,7 @@ Transform 18 months of messy operational data from a fictional Queensland mining
 | 5 — API endpoints | **Complete** — deterministic Scope 1/2 emissions, incidents, data quality, evidence |
 | 6 — AI classification | **Complete** — grounded OpenAI classification, 42/42 under `gpt-4o-mini` + `incident-classification-v3`, manual evaluation in [`docs/AI_EVALUATION.md`](docs/AI_EVALUATION.md) |
 | 7 — Vue dashboard | **Complete** — Vue compliance dashboard with charts, AI review queue, data-quality filters and source-evidence drawer |
-| 8 — Tests | Not started |
+| 8 — Tests & release readiness | **Complete** — automated test suite, verification scripts, API reliability fix, [`docs/RELEASE_CHECKLIST.md`](docs/RELEASE_CHECKLIST.md) |
 | 9 — Deploy & write-up | Not started |
 
 See [`docs/DATA_AUDIT.md`](docs/DATA_AUDIT.md) for the full evidence-based audit of all source files.
@@ -161,3 +161,5 @@ npm run build
 - [`ASSIGNMENT.md`](ASSIGNMENT.md) — original brief
 - [`docs/DATA_AUDIT.md`](docs/DATA_AUDIT.md) — audit decisions
 - [`docs/SCHEMA.md`](docs/SCHEMA.md) — schema design notes
+- [`docs/AI_EVALUATION.md`](docs/AI_EVALUATION.md) — manual AI evaluation
+- [`docs/RELEASE_CHECKLIST.md`](docs/RELEASE_CHECKLIST.md) — Checkpoint 8 release verification

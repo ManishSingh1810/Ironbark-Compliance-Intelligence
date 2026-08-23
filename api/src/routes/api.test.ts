@@ -215,6 +215,25 @@ describe("API routes", () => {
     expect(JSON.stringify(response.body)).not.toMatch(/password|DATABASE_URL|stack/i);
   });
 
+  it("returns structured 404 for unknown routes", async () => {
+    const response = await request(app).get("/api/does-not-exist");
+    expect(response.status).toBe(404);
+    expect(response.body.error.code).toBe("NOT_FOUND");
+  });
+
+  it("returns 500 for unexpected repository failures without leaking internals", async () => {
+    vi.mocked(ingestionRunRepo.findLatestCompletedRunId).mockRejectedValue(
+      new Error("read ETIMEDOUT"),
+    );
+    const response = await request(app).get("/api/emissions/summary");
+    expect(response.status).toBe(500);
+    expect(response.body.error.code).toBe("INTERNAL_ERROR");
+    expect(JSON.stringify(response.body)).not.toMatch(/ETIMEDOUT|password|DATABASE_URL|stack/i);
+
+    const health = await request(app).get("/health");
+    expect(health.status).toBe(200);
+  });
+
   it("returns 404 for missing evidence records", async () => {
     vi.mocked(evidenceRepo.findEvidenceRecord).mockResolvedValue(null);
     const response = await request(app).get(`/api/evidence/fuel_deliveries/${RUN_ID}`);

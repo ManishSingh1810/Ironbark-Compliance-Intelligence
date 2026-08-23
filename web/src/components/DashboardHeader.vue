@@ -22,7 +22,7 @@ defineProps<{
           </h1>
           <p class="mt-1 text-sm text-slate-300">Reporting period: Jan 2025 – Jun 2026</p>
         </div>
-        <div class="max-w-md rounded-lg border border-slate-700 bg-navy-900 px-4 py-3 text-sm">
+        <div class="w-full min-w-0 max-w-md rounded-lg border border-slate-700 bg-navy-900 px-4 py-3 text-sm">
           <p class="font-medium text-slate-200">Latest data status</p>
           <p class="mt-1 text-slate-400">
             API:
