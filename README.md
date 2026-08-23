@@ -13,8 +13,8 @@ Transform 18 months of messy operational data from a fictional Queensland mining
 | 3 — Ingestion pipeline | **Complete** — CSV parsing, normalisation, quality issues, rerun detection |
 | 4 — Migrations & verify load | **Complete** — real Neon ingestion verified |
 | 5 — API endpoints | **Complete** — deterministic Scope 1/2 emissions, incidents, data quality, evidence |
-| 6 — AI classification | Not started |
-| 7 — Vue dashboard | Not started |
+| 6 — AI classification | **Complete** — grounded OpenAI classification, 42/42 under `gpt-4o-mini` + `incident-classification-v3`, manual evaluation in [`docs/AI_EVALUATION.md`](docs/AI_EVALUATION.md) |
+| 7 — Vue dashboard | **Complete** — Vue compliance dashboard with charts, AI review queue, data-quality filters and source-evidence drawer |
 | 8 — Tests | Not started |
 | 9 — Deploy & write-up | Not started |
 
@@ -33,9 +33,9 @@ See [`docs/DATA_AUDIT.md`](docs/DATA_AUDIT.md) for the full evidence-based audit
 ## Stack
 
 - **Backend:** TypeScript, Node.js, Express, PostgreSQL (`pg`), Zod, `csv-parse`
-- **Frontend:** Vue 3 (later checkpoint)
-- **Testing:** Vitest, Supertest
-- **AI:** OpenAI structured outputs later (incident classification only — never emissions math)
+- **Frontend:** Vue 3, Vite, Tailwind CSS, Chart.js
+- **Testing:** Vitest, Supertest, Vue Test Utils
+- **AI:** OpenAI structured outputs (incident classification only — never emissions math)
 - **Deploy:** Neon (DB), Render (API), Vercel (frontend)
 
 ## Local setup
@@ -70,6 +70,18 @@ npm run verify:ai
 ```
 
 Read-only checks against the latest completed run. `verify:ingestion` covers ingestion invariants; `verify:ai` covers complete active-prompt AI analyses. Both exit non-zero on failure. Do not print credentials.
+
+## Frontend dashboard (Checkpoint 7)
+
+```bash
+# Terminal 1 — API
+npm run dev
+
+# Terminal 2 — Vue dashboard (http://localhost:5173)
+npm run dev:web
+```
+
+Set `VITE_API_BASE_URL` in `web/.env` (default `http://localhost:3000`). The frontend never receives database credentials or OpenAI keys.
 
 ## API
 

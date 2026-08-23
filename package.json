@@ -6,16 +6,17 @@
     "web"
   ],
   "scripts": {
-    "typecheck": "npm run typecheck -w api",
+    "typecheck": "npm run typecheck -w api && npm run typecheck -w web",
     "migrate": "npm run migrate -w api",
     "ingest": "npm run ingest -w api",
     "verify:ingestion": "npm run verify:ingestion -w api",
     "verify:ai": "npm run verify:ai -w api",
     "ai:classify": "npm run ai:classify -w api",
-    "test": "npm run test -w api",
+    "test": "npm run test -w api && npm run test -w web",
     "dev": "npm run dev -w api",
+    "dev:web": "npm run dev -w web",
     "start": "npm run start -w api",
-    "build": "npm run build -w api"
+    "build": "npm run build -w api && npm run build -w web"
   },
   "engines": {
     "node": ">=20"
