@@ -12,7 +12,7 @@ Transform 18 months of messy operational data from a fictional Queensland mining
 | 2 — Project init & schema | **Complete** — migration applied to Neon PostgreSQL |
 | 3 — Ingestion pipeline | **Complete** — CSV parsing, normalisation, quality issues, rerun detection |
 | 4 — Migrations & verify load | **Complete** — real Neon ingestion verified |
-| 5 — API endpoints | Not started |
+| 5 — API endpoints | **Complete** — deterministic Scope 1/2 emissions, incidents, data quality, evidence |
 | 6 — AI classification | Not started |
 | 7 — Vue dashboard | Not started |
 | 8 — Tests | Not started |
@@ -30,70 +30,121 @@ See [`docs/DATA_AUDIT.md`](docs/DATA_AUDIT.md) for the full evidence-based audit
 | `data/suppliers.csv` | 15 | Supplier reference (no Scope 3 factors supplied) |
 | `data/emission_factors.csv` | 3 | Authoritative conversion factors — use as-is |
 
-## Planned stack
+## Stack
 
 - **Backend:** TypeScript, Node.js, Express, PostgreSQL (`pg`), Zod, `csv-parse`
-- **Frontend:** Vue 3, Vite, Tailwind CSS, Chart.js or ECharts
+- **Frontend:** Vue 3 (later checkpoint)
 - **Testing:** Vitest, Supertest
-- **AI:** OpenAI structured outputs (incident classification only — never emissions math)
+- **AI:** OpenAI structured outputs later (incident classification only — never emissions math)
 - **Deploy:** Neon (DB), Render (API), Vercel (frontend)
-
-## Key audit findings (preview)
-
-- Fuel units mix `L`, `litres`, `Litres`, and `kL` — kL must be × 1,000 before applying factors
-- 7 exact duplicate fuel rows (416,265 L at risk of double-counting)
-- MTR-07 meter drops ~1000× from Oct 2025 — flag, do not auto-correct
-- March 2026: site-wide electricity drop (−64%) correlates with diesel spike (+45%) and substation failure incident
-- Incident severity mixes words (`Low`, `Medium`) and numbers (`1`–`3`)
-- Psychosocial hazards hidden under `OTH` type code
-
-## Documentation
-
-- [`ASSIGNMENT.md`](ASSIGNMENT.md) — original brief from ESGAgent.ai
-- [`docs/DATA_AUDIT.md`](docs/DATA_AUDIT.md) — detailed data audit with fixed/flagged/rejected decisions
-- [`docs/SCHEMA.md`](docs/SCHEMA.md) — PostgreSQL schema design notes
 
 ## Local setup
 
 ```bash
-# Install dependencies
 npm install
-
-# Copy environment template and set DATABASE_URL (never commit .env)
-cp .env.example .env
-
-# Type-check the API package
+cp .env.example .env   # set DATABASE_URL; never commit .env
 npm run typecheck
 ```
 
 ## Database migration
 
-Applies `api/migrations/001_initial_schema.sql` to the database configured in `.env`:
-
 ```bash
 npm run migrate
 ```
 
-The migration runner is rerunnable — migration files already recorded in schema_migrations are skipped.
+The migration runner is rerunnable — migration files already recorded in `schema_migrations` are skipped.
 
 ## Ingestion
-
-Loads all five CSV files from `data/` into PostgreSQL with full traceability and data-quality recording:
 
 ```bash
 npm run ingest
 ```
 
-**Rerun behaviour:** Before parsing, the pipeline SHA-256-hashes each source file. If the hash set exactly matches a previous **completed** run, ingestion is skipped safely and the existing run ID is reported. If any file changed, a new run is created. On parse or insert failure, the load transaction is rolled back and a separate **failed** run is recorded with file hashes (no partial entity rows).
+**Rerun behaviour:** SHA-256 hashes of source files are compared to the latest **completed** run. Exact match → safe skip. Any change → new run. Parse/insert failure → transaction rollback + separate **failed** run (no partial entity rows).
 
 ## Verification
-
-Read-only checks against the latest completed ingestion run (row counts, traceability, and key audit decisions):
 
 ```bash
 npm run verify:ingestion
 ```
 
-Exits with a non-zero code if required counts or invariants fail. Does not modify data or print credentials.
+Read-only checks against the latest completed run. Exits non-zero on invariant failure. Does not print credentials.
 
-Setup and run instructions for API and frontend will expand in later checkpoints.
+## API
+
+```bash
+# Development (tsx, auto-reload not required)
+npm run dev
+
+# Production build + start
+npm run build
+npm run start
+```
+
+Set `FRONTEND_URL` (e.g. `http://localhost:5173`) for CORS. In development, if unset, `http://localhost:5173` is allowed. Production should set an explicit origin.
+
+### Latest completed run rule
+
+All `/api/*` metrics endpoints resolve **one** ingestion run:
+
+`ORDER BY completed_at DESC NULLS LAST, started_at DESC` where `status = 'completed'`.
+
+If none exists, endpoints return **503** with a structured error (not empty totals).
+
+### Emissions formulas
+
+Factors come from `emission_factors` for that run (never hard-coded kg values in calculation code).
+
+| Scope | Activity filter | Formula |
+|-------|-----------------|---------|
+| 1 | `fuel_deliveries.include_in_emissions = true` | `quantity_litres × kg_co2e_per_unit` |
+| 2 | `electricity_readings.include_in_emissions = true` | `consumption_kwh × kg_co2e_per_unit` |
+
+Explicit fuel → factor activity mapping (see `api/src/domain/factor-mapping.ts`):
+
+- `Diesel` → `Diesel combustion (stationary & transport)`
+- `Petrol (ULP)` → `Petrol (ULP) combustion`
+- Electricity → `Grid electricity - Queensland`
+
+Negative fuel credit/reversal quantities are retained and reduce Scope 1. Exact duplicate copies are excluded via `include_in_emissions = false`. Scope 3 is **not** calculated (no suitable supplier factors).
+
+**Units in responses:** activity litres / kWh; `emissionsKgCo2e`; `emissionsTonnesCo2e` (= kg / 1000). Rounding to ≤3 decimals happens only at serialisation.
+
+### Endpoints
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| GET | `/health` | Liveness (no DB) |
+| GET | `/api/emissions/summary` | Scope 1/2 totals + factor metadata |
+| GET | `/api/emissions/monthly` | Jan 2025–Jun 2026 monthly series (zero-filled) |
+| GET | `/api/incidents/summary` | Counts by severity/type/month + trends |
+| GET | `/api/incidents` | Traceable incident rows (`?severity=&type=`) |
+| GET | `/api/data-quality/summary` | Issue counts by action/code/source |
+| GET | `/api/data-quality/issues` | Issue rows (`?action=&issueCode=&sourceFilename=&entityTable=`) |
+| GET | `/api/evidence/:entityTable/:entityId` | Source record + linked quality issues |
+
+Whitelisted evidence tables: `fuel_deliveries`, `electricity_readings`, `incidents`, `suppliers`, `emission_factors`.
+
+### Example curl
+
+```bash
+curl -s http://localhost:3000/health | jq .
+curl -s http://localhost:3000/api/emissions/summary | jq .
+curl -s http://localhost:3000/api/emissions/monthly | jq '.months[] | select(.month=="2025-11")'
+curl -s http://localhost:3000/api/incidents/summary | jq .
+curl -s 'http://localhost:3000/api/data-quality/issues?action=flagged' | jq '.count'
+```
+
+### Tests
+
+```bash
+npm run test      # Vitest + Supertest (no Neon required)
+npm run typecheck
+npm run build
+```
+
+## Documentation
+
+- [`ASSIGNMENT.md`](ASSIGNMENT.md) — original brief
+- [`docs/DATA_AUDIT.md`](docs/DATA_AUDIT.md) — audit decisions
+- [`docs/SCHEMA.md`](docs/SCHEMA.md) — schema design notes

@@ -10,7 +10,10 @@
     "migrate": "npm run migrate -w api",
     "ingest": "npm run ingest -w api",
     "verify:ingestion": "npm run verify:ingestion -w api",
-    "test": "npm run test -w api"
+    "test": "npm run test -w api",
+    "dev": "npm run dev -w api",
+    "start": "npm run start -w api",
+    "build": "npm run build -w api"
   },
   "engines": {
     "node": ">=20"

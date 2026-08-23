@@ -4,6 +4,7 @@ import pg from "pg";
 
 config({
   path: fileURLToPath(new URL("../../../.env", import.meta.url)),
+  quiet: true,
 });
 
 const { Pool } = pg;
