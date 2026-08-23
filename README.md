@@ -4,6 +4,17 @@ Graduate Software Engineer take-home project for **ESGAgent.ai**.
 
 Transform 18 months of messy operational data from a fictional Queensland mining operation into trustworthy emissions reporting, safety intelligence, and data-quality transparency.
 
+## Live demo
+
+| Service | URL |
+|---|---|
+| **Dashboard** | https://ironbark-compliance-intelligence-4uyswybrd.vercel.app |
+| **API** | https://ironbark-compliance-api.onrender.com |
+
+The hosted dashboard reads live data from Neon via the Render API. **Reviewers do not need to rerun ingestion or AI classification** to inspect results. The Render free tier may cold-start (~30–60 s on first request after idle).
+
+**Full submission write-up:** [`WRITEUP.md`](WRITEUP.md)
+
 ## Current status
 
 | Checkpoint | Status |
@@ -16,7 +27,7 @@ Transform 18 months of messy operational data from a fictional Queensland mining
 | 6 — AI classification | **Complete** — grounded OpenAI classification, 42/42 under `gpt-4o-mini` + `incident-classification-v3`, manual evaluation in [`docs/AI_EVALUATION.md`](docs/AI_EVALUATION.md) |
 | 7 — Vue dashboard | **Complete** — Vue compliance dashboard with charts, AI review queue, data-quality filters and source-evidence drawer |
 | 8 — Tests & release readiness | **Complete** — automated test suite, verification scripts, API reliability fix, [`docs/RELEASE_CHECKLIST.md`](docs/RELEASE_CHECKLIST.md) |
-| 9 — Deploy & write-up | Not started |
+| 9 — Deploy & write-up | **Complete** — hosted on Vercel + Render, [`WRITEUP.md`](WRITEUP.md) |
 
 See [`docs/DATA_AUDIT.md`](docs/DATA_AUDIT.md) for the full evidence-based audit of all source files.
 
@@ -132,6 +143,8 @@ Negative fuel credit/reversal quantities are retained and reduce Scope 1. Exact 
 | GET | `/api/emissions/monthly` | Jan 2025–Jun 2026 monthly series (zero-filled) |
 | GET | `/api/incidents/summary` | Counts by severity/type/month + trends |
 | GET | `/api/incidents` | Traceable incident rows (`?severity=&type=`) |
+| GET | `/api/ai/summary` | Active model/prompt analysis counts |
+| GET | `/api/incidents/review` | Incidents with grounded AI findings and review status |
 | GET | `/api/data-quality/summary` | Issue counts by action/code/source |
 | GET | `/api/data-quality/issues` | Issue rows (`?action=&issueCode=&sourceFilename=&entityTable=`) |
 | GET | `/api/evidence/:entityTable/:entityId` | Source record + linked quality issues |
@@ -158,6 +171,7 @@ npm run build
 
 ## Documentation
 
+- [`WRITEUP.md`](WRITEUP.md) — submission overview, methodology, and how to run
 - [`ASSIGNMENT.md`](ASSIGNMENT.md) — original brief
 - [`docs/DATA_AUDIT.md`](docs/DATA_AUDIT.md) — audit decisions
 - [`docs/SCHEMA.md`](docs/SCHEMA.md) — schema design notes
