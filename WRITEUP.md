@@ -18,7 +18,7 @@ This application turns 18 months of messy operational CSVs from a fictional Quee
 **Hosted deployment (reviewers can inspect without running locally):**
 
 - **Dashboard:** https://ironbark-compliance-intelligence-4uyswybrd.vercel.app
-- **API:** https://ironbark-compliance-api.onrender.com
+- **API health:** https://ironbark-compliance-api.onrender.com/health
 
 > **Note:** The Render free tier may cold-start (first request can take ~30–60 seconds). Refresh if the dashboard shows a loading or connection delay.
 
@@ -72,7 +72,7 @@ Rerunnable — already-applied migrations in `schema_migrations` are skipped.
 npm run ingest
 ```
 
-Compares SHA-256 hashes to the latest completed run. Unchanged CSVs → safe skip. Any file change → new run.
+Compares the complete filename/SHA-256 set against prior completed ingestion runs. An exact match skips safely; otherwise a new versioned run is created.
 
 ### AI classification
 
@@ -244,16 +244,14 @@ Every checkpoint was reviewed with typechecks, tests, real Neon/API verification
 
 | Mistake | How caught |
 |---|---|
-| Early incorrect/stale assumptions about repo state | Git status + file inspection |
 | v1 invented negative psychosocial evidence | Substring grounding validation |
 | v2 invented severity-consistency evidence | Grounding checks |
 | Attempted in-place v2 prompt edit | Restored immutable v2; introduced v3 |
 | Review-priority vocabulary mismatch | Unit tests + manual review |
 | `OPENAI_MODEL` truncated to `gpt-4o-` | curl/API showed 0/42; config mismatch identified |
 | Scope 2 total transcription typo in docs | Arithmetic check against source API |
-| Stale documentation and mobile header wrapping | Checkpoint review + responsive testing |
 
-I did not manually write every line. I reviewed, tested, and must be able to explain and modify the implementation.
+I used AI-assisted code generation extensively, then reviewed, tested, corrected, and took responsibility for the submitted implementation. I can explain and modify its important execution paths.
 
 ---
 

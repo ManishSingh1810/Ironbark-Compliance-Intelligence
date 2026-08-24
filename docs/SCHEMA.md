@@ -18,7 +18,7 @@ Schema derived from [`DATA_AUDIT.md`](DATA_AUDIT.md). Migration: `api/migrations
 | Input | Ingestion CLI start/completion |
 | Output | Run metadata for rerunnable ingestion and audit |
 
-Supports rerunnable ingestion via file hashes; exact upsert/conflict strategy deferred to Checkpoint 3.
+Rerunnable ingestion compares the complete filename/SHA-256 set against prior **completed** ingestion runs. An exact match skips safely; otherwise a new versioned run is created. Parse/insert failure rolls back and records a separate **failed** run (no partial entity rows).
 
 ### `emission_factors`
 
@@ -86,7 +86,7 @@ Separate from incidents so AI output never overwrites source data. **`incident_i
 
 ## Environment variables
 
-`api/src/db/client.ts` loads `import "dotenv/config"` before reading `process.env`. Node does **not** automatically load a project-root `.env` file — without dotenv, `DATABASE_URL` would be undefined even if `.env` exists. Copy `.env.example` to `.env` at the repo root before running `npm run migrate`.
+`api/src/db/client.ts` uses `dotenv` with an explicit path to the repository-root `.env` before reading `process.env`. Node does **not** automatically load a project-root `.env` file — without dotenv, `DATABASE_URL` would be undefined even if `.env` exists. Copy `.env.example` to `.env` at the repo root before running `npm run migrate`.
 
 ## Indexes
 

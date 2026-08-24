@@ -27,8 +27,8 @@ Verified on **2026-08-24** against Neon ingestion run `c269bb06-65c6-450f-b23f-e
 | Secrets excluded from Git | [`.gitignore`](../.gitignore), `.env.example` files | `.env` ignored; secret scan: only placeholder URLs in tracked files; no `.zip` committed | **Pass** | Local `.env` must never be committed |
 | API reliability (DB idle errors) | [`api/src/db/client.ts`](../api/src/db/client.ts) | Pool `error` listener added; route test: query failure → **500**, `/health` still **200** | **Pass** | Transient Neon timeouts may still fail individual requests until client retry |
 | Structured HTTP errors | [`api/src/middleware/error-handler.ts`](../api/src/middleware/error-handler.ts) | Smoke: **400** invalid query, **404** unknown route, **500** internal | **Pass** | No request ID / correlation logging |
-| Documentation | README, DATA_AUDIT, SCHEMA, AI_EVALUATION | README checkpoint table; this checklist | **Pass** | `WRITEUP.md` and live deploy pending (Checkpoint 9) |
-| Deployment readiness | Render (API), Vercel (frontend), Neon (DB) per README stack | Build succeeds; env vars documented in `.env.example` | **Pending** | No production URLs, CI, or hosted deploy yet |
+| Documentation | README, WRITEUP, DATA_AUDIT, SCHEMA, AI_EVALUATION | [`WRITEUP.md`](../WRITEUP.md) complete; README checkpoint table; this checklist | **Pass** | No CI pipeline |
+| Deployment readiness | Vercel frontend, Render API, Neon database | Hosted dashboard and API smoke tests passed; production CORS verified | **Pass** | Render free-tier cold starts; no GitHub Actions CI |
 
 ## Release verification commands
 
@@ -50,16 +50,15 @@ git diff --check
 |---|---|---|
 | `DATABASE_URL` | API | Yes |
 | `PGSSLMODE` | API | Yes (not `disable` on Neon) |
-| `OPENAI_API_KEY` | API | Yes for classification endpoints |
+| `OPENAI_API_KEY` | API | Required only for `npm run ai:classify`, not for serving stored findings |
 | `OPENAI_MODEL` | API | Yes — must match stored findings (`gpt-4o-mini`) |
 | `FRONTEND_URL` | API | Yes in production (CORS) |
 | `PORT` | API | Optional (default 3000) |
 | `VITE_API_BASE_URL` | Web build | Yes — public API URL baked at build time |
 
-## Deployment blockers (Checkpoint 9)
+## Hosted deployment verification
 
-1. Provision Render API service with env vars and `npm run start`.
-2. Provision Vercel frontend with `VITE_API_BASE_URL` pointing to Render API.
-3. Confirm production CORS (`FRONTEND_URL`) matches Vercel origin.
-4. Run smoke tests against hosted URLs.
-5. Write final submission write-up (`WRITEUP.md`).
+Dashboard: https://ironbark-compliance-intelligence-4uyswybrd.vercel.app
+API health: https://ironbark-compliance-api.onrender.com/health
+
+Hosted dashboard and API smoke tests passed. Production CORS (`FRONTEND_URL`) matches the Vercel origin. `OPENAI_API_KEY` is required only for `npm run ai:classify`, not for serving stored findings.

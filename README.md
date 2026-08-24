@@ -9,7 +9,7 @@ Transform 18 months of messy operational data from a fictional Queensland mining
 | Service | URL |
 |---|---|
 | **Dashboard** | https://ironbark-compliance-intelligence-4uyswybrd.vercel.app |
-| **API** | https://ironbark-compliance-api.onrender.com |
+| **API health** | https://ironbark-compliance-api.onrender.com/health |
 
 The hosted dashboard reads live data from Neon via the Render API. **Reviewers do not need to rerun ingestion or AI classification** to inspect results. The Render free tier may cold-start (~30–60 s on first request after idle).
 
@@ -52,7 +52,7 @@ See [`docs/DATA_AUDIT.md`](docs/DATA_AUDIT.md) for the full evidence-based audit
 ## Local setup
 
 ```bash
-npm install
+npm ci
 cp .env.example .env   # set DATABASE_URL; never commit .env
 npm run typecheck
 ```
@@ -71,7 +71,7 @@ The migration runner is rerunnable — migration files already recorded in `sche
 npm run ingest
 ```
 
-**Rerun behaviour:** SHA-256 hashes of source files are compared to the latest **completed** run. Exact match → safe skip. Any change → new run. Parse/insert failure → transaction rollback + separate **failed** run (no partial entity rows).
+**Rerun behaviour:** the complete filename/SHA-256 set is compared against **prior completed ingestion runs**. An exact match skips safely; otherwise a new versioned run is created. Parse/insert failure → transaction rollback + separate **failed** run (no partial entity rows).
 
 ## Verification
 
@@ -82,7 +82,7 @@ npm run verify:ai
 
 Read-only checks against the latest completed run. `verify:ingestion` covers ingestion invariants; `verify:ai` covers complete active-prompt AI analyses. Both exit non-zero on failure. Do not print credentials.
 
-## Frontend dashboard (Checkpoint 7)
+## Frontend dashboard
 
 ```bash
 # Terminal 1 — API

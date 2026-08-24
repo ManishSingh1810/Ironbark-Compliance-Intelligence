@@ -515,7 +515,7 @@ data/*.csv
 │   └── DATA_AUDIT.md    # this file
 ├── data/                # source CSVs (unchanged)
 ├── README.md
-├── WRITEUP.md           # later checkpoint
+├── WRITEUP.md
 └── .env.example
 ```
 
@@ -524,7 +524,7 @@ data/*.csv
 - One DB row per source row (raw + normalised columns together)
 - Every quality action logged with full traceability
 - Duplicate copies preserved but excluded from emissions via `include_in_emissions = false`
-- Rerunnable ingestion using source-file hashes and ingestion-run tracking; the exact conflict strategy will be defined and tested during implementation
+- Rerunnable ingestion: the complete filename/SHA-256 set is compared against prior completed ingestion runs; an exact match skips safely, otherwise a new versioned run is created
 - Deterministic emissions in SQL/TypeScript — never via LLM
 - AI assessments link to the internal `incidents.id` UUID; `source_incident_id` and `source_row` remain supporting evidence
 
@@ -538,6 +538,6 @@ data/*.csv
 
 ---
 
-## Next step
+## Subsequent implementation
 
-Checkpoint 2: initialise monorepo, define PostgreSQL schema from this audit, and create initial SQL migrations.
+The architecture described above was subsequently implemented. See [`README.md`](../README.md) and [`WRITEUP.md`](../WRITEUP.md) for how to run the system and inspect the hosted deployment.
