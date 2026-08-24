@@ -91,9 +91,3 @@ Separate from incidents so AI output never overwrites source data. **`incident_i
 ## Indexes
 
 Partial indexes on `include_in_emissions = true` for fuel/electricity keep monthly emissions queries fast without scanning rejected duplicates.
-
-## Likely interview question
-
-**"Why store raw and normalised values on the same row instead of separate staging tables?"**
-
-**Strong answer:** "Compliance software needs to show both what the client submitted and what we used for calculations. One row per source row keeps joins simple and guarantees we never lose the original evidence. Quality issues are logged separately so we can report every fixed, flagged, and rejected action without duplicating the activity data."

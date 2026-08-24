@@ -530,14 +530,6 @@ data/*.csv
 
 ---
 
-## Likely interview question
-
-**"Why exclude exact duplicate copies from emissions while preserving them in the database?"**
-
-**Strong answer:** "The first occurrence of each exact duplicate row is the canonical record and feeds emissions calculations. Each duplicate copy is still loaded with its original source filename and row number so we retain full evidence and audit trail. We set `action = rejected`, `issue_code = EXACT_DUPLICATE`, and `include_in_emissions = false` on duplicate copies only — they are rejected from curated calculations, not deleted. That prevents double-counting 416,265 L of diesel while keeping every source problem visible and explainable."
-
----
-
 ## Subsequent implementation
 
 The architecture described above was subsequently implemented. See [`README.md`](../README.md) and [`WRITEUP.md`](../WRITEUP.md) for how to run the system and inspect the hosted deployment.

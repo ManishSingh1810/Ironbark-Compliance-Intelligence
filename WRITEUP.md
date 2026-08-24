@@ -235,7 +235,7 @@ Manual evaluation: [`docs/AI_EVALUATION.md`](docs/AI_EVALUATION.md).
 
 **Honest account:**
 
-- **ChatGPT** — planning, architecture review, validation questions, checkpoint review, debugging, and interview-focused explanations.
+- **ChatGPT** — planning, architecture review, validation questions, checkpoint review and debugging.
 - **Cursor** — generated and edited code under structured checkpoint prompts.
 
 Every checkpoint was reviewed with typechecks, tests, real Neon/API verification, and manual dashboard inspection. AI tools did **not** make autonomous compliance decisions or replace deterministic calculations.
@@ -330,3 +330,4 @@ Authentication and enterprise security are **not** implemented in this submissio
 | [`docs/AI_EVALUATION.md`](docs/AI_EVALUATION.md) | Manual AI evaluation |
 | [`docs/RELEASE_CHECKLIST.md`](docs/RELEASE_CHECKLIST.md) | Checkpoint 8 verification |
 | [`docs/SCHEMA.md`](docs/SCHEMA.md) | Database design notes |
+
